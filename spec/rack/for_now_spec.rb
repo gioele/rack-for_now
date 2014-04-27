@@ -64,6 +64,13 @@ describe Rack::ForNow do
 		last_response.header['Location'].should == 'http://will.github.io/romeo'
 	end
 
+	it "redirects to GitHub Issues" do
+		get '/romeo/issues'
+
+		last_response.status.should == 307
+		last_response.header['Location'].should == 'https://github.com/will/romeo/issues'
+	end
+
 	it "redirects when the path ends with a slash" do
 		get '/venice/'
 
