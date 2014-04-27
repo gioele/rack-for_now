@@ -128,7 +128,7 @@ module Rack::ForNow
 
 	class GHPages < GitHub
 		def default_subpath; 'docs'; end
-		def template_url; 'http://%{user}.github.io/%{project}'; end
+		def template_url; 'http://%{user_name}.github.io/%{project}'; end
 	end
 
 	class RubyDoc < Service

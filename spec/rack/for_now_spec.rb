@@ -57,6 +57,13 @@ describe Rack::ForNow do
 		last_response.header['Location'].should == 'http://rubydoc.info/gems/venice'
 	end
 
+	it "redirects to GitHub Pages" do
+		get '/romeo/docs'
+
+		last_response.status.should == 307
+		last_response.header['Location'].should == 'http://will.github.io/romeo'
+	end
+
 	it "redirects when the path ends with a slash" do
 		get '/venice/'
 
