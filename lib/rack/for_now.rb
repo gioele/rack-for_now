@@ -22,7 +22,8 @@ module Rack::ForNow
 
 		def main_app
 			lambda do |env|
-				if !env['PATH_INFO'].split('/').to_s.empty? # FIXME: make simpler
+				root_requested = env['PATH_INFO'].chomp('/').empty?
+				if !root_requested
 					return [404, {'Content-Type' => 'text/plain', 'X-Cascade' => 'pass'}, ["Not Found: #{env['PATH_INFO']}"]]
 				end
 
