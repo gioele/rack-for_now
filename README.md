@@ -7,6 +7,50 @@ domain as the permanent URL of your project while still using these handy
 third-party services.
 
 
+Examples
+--------
+
+The most basic way to use `rack-for_now` is to mount it in `config.ru`
+or with `Rack::Builder`.
+
+    # let's create a redirect from `/othello` to GitHub, under
+    # the user `will`
+    map '/othello' do
+        run Rack::ForNow::GitHub.new('will', 'othello')
+    end
+
+It is possible to omit the project name if it is the same as the
+URL where `rack-for_now` is mounted.
+
+    # Rack::ForNow::GitHub will understand that the project name is `othello`
+    map '/othello' do
+        run Rack::ForNow::GitHub.new('will')
+    end
+
+A more interesting use is to add additional subpaths for other
+services using the `#with(*subservices)` method.
+
+    # this will redirect
+    # * `/romeo` to <https://github.com/will/romeo>,
+    # * `/romeo/docs` to <http://rubydoc.info/gems/romeo>,
+    # * `/romeo/issues` to <https://github.com/will/issues>
+    map '/romeo' do
+        run Rack::ForNow::GitHub.new('will').
+	    with(Rack::ForNow::GHIssues,
+	         Rack::ForNow::RubyDoc)
+    end
+
+The services have their default mount point, for example `RubyDoc` will
+automatically be mounted on `./docs`. It is possible to configure under
+which path they are mounted on using `.on(mount_point)`.
+
+    # redirect to rubydocs.info when `/romeo/api-docs` is requested
+    map '/romeo' do
+        run Rack::ForNOw::GitHub.new('will').
+	    with(Rack::ForNow::RubyDoc.on('api-docs'))
+    end
+
+
 Requirements
 ------------
 
