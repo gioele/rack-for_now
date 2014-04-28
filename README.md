@@ -4,7 +4,7 @@
 `rack-for_now` is a Rack middleware component that redirects project
 URLs to GitHub, Rubygems and other online service. It allows you to use your
 domain as the permanent URL of your project while still using these handy
-3rd-party services.
+third-party services.
 
 
 Requirements
