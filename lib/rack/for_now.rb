@@ -1,12 +1,6 @@
 require 'rack/builder'
 
 module Rack::ForNow
-	class FakeService
-		def method_missing(m, *args, &block)
-			return nil
-		end
-	end
-
 	class Service
 		def subpath
 			return @subpath || default_subpath
@@ -98,6 +92,12 @@ module Rack::ForNow
 			end
 
 			return url
+		end
+	end
+
+	class FakeService
+		def method_missing(m, *args, &block)
+			return nil
 		end
 	end
 
