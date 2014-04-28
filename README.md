@@ -1,6 +1,12 @@
 `rack-for_now`: use third-party services, publish your domain URL
 =================================================================
 
+> Yeah, this project will be a great success, I will need to set up
+> my own git server. And an issue tracker. And a full data center
+> to run it!
+>
+> Well, _for now_ GitHub will do.
+
 `rack-for_now` is a Rack middleware component that redirects project
 URLs to GitHub, Rubygems and other online service. It allows you to use your
 domain as the permanent URL of your project while still using these handy
