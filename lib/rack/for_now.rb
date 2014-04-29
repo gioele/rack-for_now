@@ -8,63 +8,16 @@ module Rack::ForNow
 	# @abstract The `Service` class is not meant to be used directly.
 
 	class Service
-		# @api private
-		def subpath
-			return @subpath || default_subpath
-		end
-		attr_writer :subpath
-
-		# @api private
-		def parent_service
-			return @parent_service || FakeService.new
-		end
-		attr_writer :parent_service
-
 		# @return [String] the default path where the service will be mounted.
+
 		def default_subpath
 			self.class.const_get(:DEFAULT_SUBPATH)
 		end
 
 		# @return [String] the template URL for the service.
+
 		def template_url
 			self.class.const_get(:TEMPLATE_URL)
-		end
-
-		# @api private
-		def main_app
-			lambda do |env|
-				root_requested = env['PATH_INFO'].chomp('/').empty?
-				if !root_requested
-					return [404, {'Content-Type' => 'text/plain', 'X-Cascade' => 'pass'}, ["Not Found: #{env['PATH_INFO']}"]]
-				end
-
-				update_context_values(env)
-
-				destination_url = personalized(template_url)
-
-				return [307, { 'Location' => destination_url }, [""]]
-			end
-		end
-
-		# @api private
-		def app
-			builder = Rack::Builder.new
-
-			@subservices ||= {}
-			@subservices.each do |path, service|
-				builder.map('/' + path) { run service.main_app }
-			end
-
-			service = self
-			builder.map('/') { run service.main_app }
-
-			return builder.to_app
-		end
-
-		# @api private
-		def call(env)
-			@app ||= app
-			@app.call(env)
 		end
 
 		# Mounts a service on a subpath.
@@ -134,6 +87,55 @@ module Rack::ForNow
 
 			return service
 		end
+
+		# @api private
+		def call(env)
+			@app ||= app
+			@app.call(env)
+		end
+
+		# @api private
+		def app
+			builder = Rack::Builder.new
+
+			@subservices ||= {}
+			@subservices.each do |path, service|
+				builder.map('/' + path) { run service.main_app }
+			end
+
+			service = self
+			builder.map('/') { run service.main_app }
+
+			return builder.to_app
+		end
+
+		# @api private
+		def main_app
+			lambda do |env|
+				root_requested = env['PATH_INFO'].chomp('/').empty?
+				if !root_requested
+					return [404, {'Content-Type' => 'text/plain', 'X-Cascade' => 'pass'}, ["Not Found: #{env['PATH_INFO']}"]]
+				end
+
+				update_context_values(env)
+
+				destination_url = personalized(template_url)
+
+				return [307, { 'Location' => destination_url }, [""]]
+			end
+		end
+
+		# @api private
+		def subpath
+			return @subpath || default_subpath
+		end
+		attr_writer :subpath
+
+		# @api private
+		def parent_service
+			return @parent_service || FakeService.new
+		end
+		attr_writer :parent_service
 
 		# @api private
 		def last_URL_segment(env)
