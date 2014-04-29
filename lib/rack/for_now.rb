@@ -12,8 +12,6 @@ module Rack::ForNow
 		end
 		attr_writer :parent_service
 
-		attr_reader :template_url
-
 		def main_app
 			lambda do |env|
 				root_requested = env['PATH_INFO'].chomp('/').empty?
