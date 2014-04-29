@@ -26,6 +26,11 @@ APP = Rack::Builder.new do
 		run Rack::ForNow::RubyDoc.new
 	end
 
+	map '/midnight' do
+		run Rack::ForNow::GitHub.new('will').
+			with(Rack::ForNow::RubyDocGitHub)
+	end
+
 	map '/capuleti' do
 		run Rack::ForNow::MavenCentral.new('uk.shakespeare.william', 'romeo')
 	end
@@ -59,6 +64,13 @@ describe Rack::ForNow do
 
 		last_response.status.should == 307
 		last_response.header['Location'].should == 'http://rubydoc.info/gems/venice'
+	end
+
+	it "redirects to Rubydoc.info for GitHub repos" do
+		get '/midnight/docs'
+
+		last_response.status.should == 307
+		last_response.header['Location'].should == 'http://rubydoc.info/github/will/midnight'
 	end
 
 	it "redirects to GitHub Pages" do

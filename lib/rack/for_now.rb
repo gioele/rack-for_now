@@ -245,6 +245,19 @@ module Rack::ForNow
 		attr_reader :project
 	end
 
+	class RubyDocGitHub < RubyDoc
+		DEFAULT_SUBPATH = 'docs'
+		TEMPLATE_URL = 'http://rubydoc.info/github/%{user_name}/%{project}'
+
+		def initialize(user_name = nil, project = nil)
+			@user_name = user_name
+			@project = project
+		end
+
+		attr_reader :user_name
+		attr_reader :project
+	end
+
 	class MavenCentral < Service
 		DEFAULT_SUBPATH = 'maven'
 		TEMPLATE_URL = 'http://search.maven.org/#search|ga|1|g%3A%22%{group_id}%22%20AND%20a%3A%22%{project}%22'
