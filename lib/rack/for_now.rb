@@ -20,6 +20,16 @@ module Rack::ForNow
 		end
 		attr_writer :parent_service
 
+		# @return [String] the default path where the service will be mounted.
+		def default_subpath
+			self.class.const_get(:DEFAULT_SUBPATH)
+		end
+
+		# @return [String] the template URL for the service.
+		def template_url
+			self.class.const_get(:TEMPLATE_URL)
+		end
+
 		# @api private
 		def main_app
 			lambda do |env|
@@ -162,8 +172,8 @@ module Rack::ForNow
 	end
 
 	class GitHub < Service
-		def default_subpath; 'code'; end
-		def template_url; 'https://github.com/%{user_name}/%{project}'; end
+		DEFAULT_SUBPATH = 'code'
+		TEMPLATE_URL = 'https://github.com/%{user_name}/%{project}'
 
 		def initialize(user_name = nil, project = nil)
 			@user_name = user_name
@@ -182,18 +192,18 @@ module Rack::ForNow
 	end
 
 	class GHIssues < GitHub
-		def default_subpath; 'issues'; end
-		def template_url; 'https://github.com/%{user_name}/%{project}/issues'; end
+		DEFAULT_SUBPATH = 'issues'
+		TEMPLATE_URL = 'https://github.com/%{user_name}/%{project}/issues'
 	end
 
 	class GHPages < GitHub
-		def default_subpath; 'docs'; end
-		def template_url; 'http://%{user_name}.github.io/%{project}'; end
+		DEFAULT_SUBPATH = 'docs'
+		TEMPLATE_URL = 'http://%{user_name}.github.io/%{project}'
 	end
 
 	class RubyDoc < Service
-		def default_subpath; 'docs'; end
-		def template_url; 'http://rubydoc.info/gems/%{project}'; end
+		DEFAULT_SUBPATH = 'docs'
+		TEMPLATE_URL = 'http://rubydoc.info/gems/%{project}'
 
 		def initialize(project = nil)
 			@project = project
@@ -207,8 +217,8 @@ module Rack::ForNow
 	end
 
 	class MavenCentral < Service
-		def default_subpath; 'maven'; end
-		def template_url; "http://search.maven.org/#search|ga|1|g%3A%22%{group_id}%22%20AND%20a%3A%22%{project}%22"; end
+		DEFAULT_SUBPATH = 'maven'
+		TEMPLATE_URL = 'http://search.maven.org/#search|ga|1|g%3A%22%{group_id}%22%20AND%20a%3A%22%{project}%22'
 
 		def initialize(group_id, project = nil)
 			@group_id = group_id
