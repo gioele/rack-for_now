@@ -26,6 +26,10 @@ APP = Rack::Builder.new do
 		run Rack::ForNow::RubyDoc.new
 	end
 
+	map '/capuleti' do
+		run Rack::ForNow::MavenCentral.new('uk.shakespeare.william', 'romeo')
+	end
+
 	map '/' do
 		run Proc.new { |env| [200, { 'Content-Type' => 'text/plain' }, ["Default page"]] }
 	end
@@ -69,6 +73,13 @@ describe Rack::ForNow do
 
 		last_response.status.should == 307
 		last_response.header['Location'].should == 'https://github.com/will/romeo/issues'
+	end
+
+	it "redirects to MavenCentral" do
+		get '/capuleti'
+
+		last_response.status.should == 307
+		last_response.header['Location']. should == 'http://search.maven.org/#search|ga|1|g%3A%22uk.shakespeare.william%22%20AND%20a%3A%22romeo%22'
 	end
 
 	it "redirects when the path ends with a slash" do

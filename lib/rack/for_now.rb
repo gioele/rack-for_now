@@ -205,6 +205,22 @@ module Rack::ForNow
 			@project ||= last_URL_segment(env)
 		end
 	end
+
+	class MavenCentral < Service
+		def default_subpath; 'maven'; end
+		def template_url; "http://search.maven.org/#search|ga|1|g%3A%22%{group_id}%22%20AND%20a%3A%22%{project}%22"; end
+
+		def initialize(group_id, project = nil)
+			@group_id = group_id
+			@project = project
+		end
+
+		def update_context_values(env)
+			@project ||= parent_service.project unless parent_service.nil?
+
+			@project ||= last_URL_segment(env)
+		end
+	end
 end
 
 # This is free software released into the public domain (CC0 license).
