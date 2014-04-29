@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
 	spec.name          = 'rack-for_now'
-	spec.version       = '0.1.dev'
+	spec.version       = '0.1'
 	spec.authors       = ["Gioele Barabucci"]
 	spec.email         = ["gioele@svario.it"]
 	spec.summary       = %q{Use third-party services, publish your domain URL}
