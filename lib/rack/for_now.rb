@@ -117,7 +117,8 @@ module Rack::ForNow
 					return [404, {'Content-Type' => 'text/plain', 'X-Cascade' => 'pass'}, ["Not Found: #{env['PATH_INFO']}"]]
 				end
 
-				update_context_values(env)
+				set_parameters
+				infer_runtime_parameters(env)
 
 				destination_url = personalized(template_url)
 
@@ -136,6 +137,42 @@ module Rack::ForNow
 			return @parent_service || FakeService.new
 		end
 		attr_writer :parent_service
+
+		# Set the service parameters, inheriting from the parent service if needed.
+		#
+		# @api private
+		#
+		# @return void
+
+		def set_parameters
+			if parent_service.nil?
+				return
+			end
+
+			params = self.instance_variables
+			params -= ['@app', '@parent_service', '@subpath', '@subservices']
+			params.reject! { |param_name| !self.instance_variable_get(param_name).nil? }
+
+			methods = params.map { |param_name| param_name[1..-1].to_sym }
+
+			params.each_with_index do |param_name, idx|
+				value = parent_service.send(methods[idx])
+				self.instance_variable_set(param_name, value)
+			end
+		end
+
+		# Infer parameters from the Rack request.
+		#
+		# @api private
+		#
+		# @return void
+
+		def infer_runtime_parameters(env)
+			# TODO: provide a way to update also other parameters
+			if self.instance_variables.include?("@project")
+				@project ||= last_URL_segment(env)
+			end
+		end
 
 		# @api private
 		def last_URL_segment(env)
@@ -184,13 +221,6 @@ module Rack::ForNow
 
 		attr_reader :user_name
 		attr_reader :project
-
-		def update_context_values(env)
-			@project ||= parent_service.project unless parent_service.nil?
-			@user_name ||= parent_service.user_name unless parent_service.nil?
-
-			@project ||= last_URL_segment(env)
-		end
 	end
 
 	class GHIssues < GitHub
@@ -211,11 +241,7 @@ module Rack::ForNow
 			@project = project
 		end
 
-		def update_context_values(env)
-			@project ||= parent_service.project unless parent_service.nil?
-
-			@project ||= last_URL_segment(env)
-		end
+		attr_reader :project
 	end
 
 	class MavenCentral < Service
@@ -227,11 +253,8 @@ module Rack::ForNow
 			@project = project
 		end
 
-		def update_context_values(env)
-			@project ||= parent_service.project unless parent_service.nil?
-
-			@project ||= last_URL_segment(env)
-		end
+		attr_reader :group_id
+		attr_reader :project
 	end
 end
 
