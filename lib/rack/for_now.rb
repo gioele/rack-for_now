@@ -1,17 +1,26 @@
 require 'rack/builder'
 
 module Rack::ForNow
+
+	# The `Service` class is the base classes for all the
+	# third-party services made available by `Rack::ForNow`.
+	#
+	# @abstract The `Service` class is not meant to be used directly.
+
 	class Service
+		# @api private
 		def subpath
 			return @subpath || default_subpath
 		end
 		attr_writer :subpath
 
+		# @api private
 		def parent_service
 			return @parent_service || FakeService.new
 		end
 		attr_writer :parent_service
 
+		# @api private
 		def main_app
 			lambda do |env|
 				root_requested = env['PATH_INFO'].chomp('/').empty?
@@ -27,6 +36,7 @@ module Rack::ForNow
 			end
 		end
 
+		# @api private
 		def app
 			builder = Rack::Builder.new
 
@@ -41,10 +51,41 @@ module Rack::ForNow
 			return builder.to_app
 		end
 
+		# @api private
 		def call(env)
 			@app ||= app
 			@app.call(env)
 		end
+
+		# Mounts a service on a subpath.
+		#
+		# @example Mount a GitHub Issues redirect under `/romeo/issues` (default path)
+		#
+		#     map '/romeo' do
+		#         run Rack::ForNow::GitHub.new('will').with(Rack::ForNow::GHIssues)
+		#     end
+		#
+		# @example Mount a GitHub Issues redirect under `/romeo/bugs`
+		#
+		#     map '/romeo' do
+		#         run Rack::ForNow::GitHub.new('will').with(Rack::ForNow::GHIssues.on('bugs'))
+		#     end
+		#
+		# @example Mount multiple services
+		#
+		#     map '/romeo' do
+		#         run Rack::ForNow::GitHub.new('will').
+		#             with(Rack::ForNow::GHIssues, Rack::ForNow::Rubydoc).
+		#             with(Rack::ForNow::GHPages.on('tutorial')).
+		#     end
+		#
+		# @see .on
+		#
+		# @api public
+		#
+		# @param [Service, Class] subservices the services to mount
+		#
+		# @return [Service] the service itself
 
 		def with(*subservices)
 			subservices.each do |subservice|
@@ -59,6 +100,24 @@ module Rack::ForNow
 			return self
 		end
 
+		# Sets up a service to be installed on an arbitrary path
+		#
+		# @example
+		#
+		#     map '/romeo' do
+		#         run Rack::ForNow::GitHub.new('will').
+		#               with(Rack::ForNow::Rubydoc). # this sets up `/romeo/docs`
+		#               with(Rack::ForNow::Rubydoc.on('/documentation') # this sets up `/romeo/documentation`
+		#     end
+		#
+		# @see #with
+		#
+		# @api public
+		#
+		# @param [String] path the path under which the service is to be installed
+		#
+		# @return [Service] the service, set up so to be installed on `path`
+
 		def self.on(path)
 			service = self.new
 			service.subpath = path
@@ -66,6 +125,7 @@ module Rack::ForNow
 			return service
 		end
 
+		# @api private
 		def last_URL_segment(env)
 			path = env['SCRIPT_NAME'].to_s + env['PATH_NAME'].to_s
 			segments = path.split('/')
@@ -74,6 +134,7 @@ module Rack::ForNow
 			return segments[idx_last]
 		end
 
+		# @api private
 		def personalized(url_template)
 			placeholders = url_template.scan(/\%\{(.*?)\}/).to_a.flatten.uniq
 			values = Hash[placeholders.map { |placeholder| [placeholder, instance_variable_get("@#{placeholder}".to_sym)] }]
@@ -93,6 +154,7 @@ module Rack::ForNow
 		end
 	end
 
+	# @private
 	class FakeService
 		def method_missing(m, *args, &block)
 			return nil
