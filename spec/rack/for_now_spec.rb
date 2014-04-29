@@ -13,13 +13,13 @@ APP = Rack::Builder.new do
 
 	map '/romeo' do
 		run Rack::ForNow::GitHub.new('will').
-		    with(Rack::ForNow::GHIssues, Rack::ForNow::GHPages).
-		    with(Rack::ForNow::RubyDoc.on('documentation'))
+			with(Rack::ForNow::GHIssues, Rack::ForNow::GHPages).
+			with(Rack::ForNow::RubyDoc.on('documentation'))
 	end
 
 	map '/juliet' do
 		run Rack::ForNow::GitHub.new('will', 'romeo').
-		    with(Rack::ForNow::RubyDoc)
+			with(Rack::ForNow::RubyDoc)
 	end
 
 	map '/venice' do
