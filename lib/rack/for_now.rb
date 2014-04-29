@@ -149,11 +149,11 @@ module Rack::ForNow
 				return
 			end
 
-			params = self.instance_variables
-			params -= ['@app', '@parent_service', '@subpath', '@subservices']
+			params = self.instance_variables.map(&:to_sym)
+			params -= [:@app, :@parent_service, :@subpath, :@subservices]
 			params.reject! { |param_name| !self.instance_variable_get(param_name).nil? }
 
-			methods = params.map { |param_name| param_name[1..-1].to_sym }
+			methods = params.map { |param_name| param_name.to_s[1..-1].to_sym }
 
 			params.each_with_index do |param_name, idx|
 				value = parent_service.send(methods[idx])
@@ -169,7 +169,8 @@ module Rack::ForNow
 
 		def infer_runtime_parameters(env)
 			# TODO: provide a way to update also other parameters
-			if self.instance_variables.include?("@project")
+			params = self.instance_variables.map(&:to_sym)
+			if params.include?(:@project)
 				@project ||= last_URL_segment(env)
 			end
 		end
