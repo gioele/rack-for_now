@@ -127,6 +127,12 @@ describe Rack::ForNow do
 
 		last_response.status.should == 404
 	end
+
+	it "raises an exception if a template has an unbound variable" do
+		Rack::ForNow::MavenCentral.send(:remove_const, :TEMPLATE_URL)
+		Rack::ForNow::MavenCentral.const_set(:TEMPLATE_URL, 'http://example.org/%{project}/%{other_info}')
+		expect { get '/capuleti' }.to raise_exception
+	end
 end
 
 # This is free software released into the public domain (CC0 license).
