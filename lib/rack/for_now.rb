@@ -133,9 +133,7 @@ module Rack::ForNow
 		attr_writer :subpath
 
 		# @api private
-		def parent_service
-			return @parent_service || FakeService.new
-		end
+		attr_reader :parent_service
 		attr_writer :parent_service
 
 		# Set the service parameters, inheriting from the parent service if needed.
@@ -201,13 +199,6 @@ module Rack::ForNow
 			end
 
 			return url
-		end
-	end
-
-	# @private
-	class FakeService
-		def method_missing(m, *args, &block)
-			return nil
 		end
 	end
 
