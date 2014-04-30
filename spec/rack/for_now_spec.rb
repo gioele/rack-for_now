@@ -1,4 +1,5 @@
 require 'rack/test'
+begin; require 'coco'; rescue LoadError; warn "Couldn't load COCO; code coverage not available."; end
 
 require 'rack/for_now'
 
